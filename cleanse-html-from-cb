@@ -1,0 +1,63 @@
+#! /bin/bash
+
+# Input is expected to be a filename. Strings with spaces are automatically
+# converted to lowercase with hyphens substituted for spaces.
+if [ "$#" -eq 0 ]; then
+	echo "Provide a filename please."
+	exit 0;
+fi
+
+# Convert filename string to lowercase.
+of=""
+for var in "$@"
+do
+	of+=$(echo "$var" | tr [:upper:] [:lower:])"-"
+done
+
+# The above loop will leave a trailing slash. Replace it with `.html`
+# extension.
+of=$( echo "$of" | sed -r 's/-$/.html/g')
+
+echo "Saving clipboard to: $of"
+
+old="$of.orig"
+
+# If we've generated a file previously, make another backup.
+if [ -f "$of" ]; then
+	if [ -f "$old" ]; then
+		mv $old $old.bak;
+	fi
+	mv $of $of.orig;
+else
+	touch $old;
+	echo $(xsel --clipboard -o) > $old;
+fi
+
+# Output clipbaord to file.
+echo $(xsel --clipboard -o) > $of;
+
+# Clipboard is now saved to $of, replace unwanted stuff:
+
+# Remove classes with double quote:
+#sed -i 's#<\([A-Za-z0-9]\+\)[^>]*class="[^"]*"[^>]*>#<\1>#gi' $of;
+
+# Remove classes with single quotes:
+#sed -i "s#<\([A-Za-z0-9]\+\)[^>]*class='[^']*'[^>]*>#<\1>#gi" $of;
+
+# Tags on newlines
+#sed -i 's#</\(p\|li\|ul\|div\|h[0-9]\)>#</\1>\n\n#g' $of;
+
+# Remove <br> tags:
+#sed -i 's#<br */\?>#\n\n#g' $of;
+
+# Remove all span and other weird tags.
+#sed -i 's#</\?\(span\|o\|o:[^>]*\|st[0-9]*\|st[0-9]*:[^>]*\)>##gi' $of
+
+# Remove empty tags
+#sed -i 's#<[A-Za-z0-9]*> *</[^>]*>##gi' $of
+
+# Remove inline styles double quote:
+#sed -i 's#<\([A-Za-z]\+[0-9]\?[^>]*\)style="[^"]"\([^>]*\)>#<\1 \2>#gi' $of;
+
+# Remove inline styles single quote:
+#sed -i "s#<\([A-Za-z]\+[0-9]\?[^>]*\)style='[^']'\([^>]*\)>#<\1 \2>#gi" $of;

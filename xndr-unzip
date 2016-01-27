@@ -1,0 +1,5 @@
+#! /bin/bash
+
+# XFCE allows you to run commands from file manager.
+
+$TERM -x unzip "$@"

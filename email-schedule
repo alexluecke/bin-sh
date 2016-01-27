@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# Agenda/schedule
+agenda="$(calcurse -d 1)"
+
+#  remove the "to do:" line... I want this to be uppercase
+todo="$(calcurse -t | tail -n +2 )"
+
+body=""
+if [ ! -z "$agenda" ]; then
+	body="${body}Schedule:\n\n"
+	body="${body}${agenda}"
+	body="${body}\n\n--------------------------------------------------\n\n"
+fi
+
+body="${body}Todo:\n\n"
+body="${body}${todo}"
+
+echo -e "$body" | \
+	mutt -s "Schedule and Todo | $(date +"%b %d, %y")" \
+	me@alexjl.com;

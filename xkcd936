@@ -1,0 +1,3 @@
+#!/bin/sh
+
+cat /usr/share/dict/words | unsort | head -n 40 | sed -e "s/['\"]//g" | xargs -n4 echo

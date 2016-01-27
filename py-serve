@@ -1,0 +1,6 @@
+#! /bin/bash
+
+# Quickly enter virtual env and Django server
+result=${PWD}
+source ../env/bin/activate
+python $result/manage.py runserver

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+tmux has-session -t alex
+
+if [ $? != 0 ] then
+	tmux new-session -d -s alex
+
+	tmux new-window -t alex:1 -n etc -d
+	tmux send -t alex:1 cdsac ENTER
+
+	tmux new-window -t alex:2 -n dev -d
+	tmux send -t alex:2 cdsac ENTER "vim index.php" ENTER
+
+	tmux new-window -t alex:3 -n style -d
+	tmux send -t alex:3 cdsac ENTER "cd assets/scss" ENTER "vim main.scss" ENTER
+
+	tmux new-window -t alex:4 -n logs -d
+	tmux send -t alex:4 cdsac ENTER "tail -f /var/log/fpm-php.www.log" ENTER
+
+	tmux select-window -t alex:1
+fi
+
+tmux -2 attach-session -t alex

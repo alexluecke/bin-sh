@@ -1,0 +1,101 @@
+#! /bin/bash
+
+dots="dots"
+drive="Boatload"
+dir_from=$HOME
+dir_to=/media/$USER/$drive/Backups
+
+sync_dirs=()
+for dir in "$@"
+do
+	if [ -d "$dir_from/$dir/" ] && [ -d "$dir_to/$dir/" ]
+	then
+		sync_dirs+=($dir)
+	elif [ "$dir" == "$dots" ]
+	then
+		sync_dirs+=($dir)
+	fi
+done
+
+dot_files=(".ssh" ".password-store" ".vim" ".task" ".taskrc" ".config" ".fonts")
+
+for dir in ${sync_dirs[@]}
+do
+	if [ $dir == "dots" ]; then
+		printf "\nBackup dot files?\n"
+		select yn in "Yes" "No" "Dry"; do
+			case $yn in
+				Yes )
+					mkdir -p $dir_to/dots;
+
+					for dot in ${dot_files[@]}
+					do
+						printf "\nBacking up $dir_from/$dot to $dit_to/dots/$dot\n"
+						mkdir -p  $dir_to/dots/$dot;
+						rsync -aruv --delete --progress \
+							$dir_from/${dot}/ $dir_to/dots/${dot}/;
+					done
+
+					break
+					;;
+				No ) echo "SKIPPING"; break;;
+				Dry )
+
+					# TODO: Refactor this.
+					echo "DRY RUN"
+					mkdir -p $dir_to/dots;
+
+					for dot in ${dot_files[@]}
+					do
+						printf "\nBacking up $dir_from/$dot to $dit_to/dots/$dot\n"
+						mkdir -p  $dir_to/dots/$dot;
+						rsync -aruvn --delete --progress \
+							$dir_from/${dot}/ $dir_to/dots/${dot}/;
+					done
+
+					continue
+					;;
+				* ) break;;
+			esac
+		done
+	elif [ -n "$dir" ]; then
+		printf "\nSync $dir_from/$dir to $dir_to/$dir?\n"
+		select yn in "Yes" "No" "Dry"; do
+			case $yn in
+				Yes )
+					rsync -aruv --delete --progress \
+						$dir_from/$dir/ $dir_to/$dir/;
+					break
+					;;
+				No ) echo "SKIPPING"; break;;
+				Dry )
+					rsync -aruvn --delete --progress \
+						$dir_from/$dir/ $dir_to/$dir/;
+					continue
+					;;
+				* ) break;;
+			esac
+		done
+	fi
+done
+
+# TODO: Possible excludes to add.
+#--exclude=".Trash-*/" \
+#--exclude=".themes/" \
+#--exclude=".icons/" \
+#--exclude=".cache/" \
+#--exclude=".mozilla/" \
+#--exclude=".config/chromium/" \
+#--exclude=".config/google-chrome/" \
+#--exclude=".icedove/" \
+#--exclude=".thumbnails/" \
+#--exclude=".rvm/" \
+#--exclude=".cargo/" \
+#--exclude=".AndroidStudio/" \
+#--exclude=".android/" \
+#--exclude=".gimp-2.8/" \
+#--exclude=".gradle/" \
+#--exclude=".java/" \
+#--exclude=".vim/" \
+#--exclude="Steam" \
+#--exclude=".steam/" \

@@ -1,0 +1,18 @@
+#! /bin/bash
+
+#xrandr --output HDMI1 --right-of eDP1 --scale 1.5x1.5 --mode 1920x1080 --fb 2880x1620
+#xrandr --output HDMI1 --right-of eDP1 --scale 2x2 --mode 1920x1080 --fb 3840x2160 --pos 0x0
+
+xrandr | grep HDMI3 | grep " connected "
+if [ $? -eq 0 ]; then
+	xrandr --output HDMI3 --right-of LVDS1 --mode 1920x1080
+	if [ $? -ne 0 ]; then
+		# Something went wrong. Autoconfigure the internal monitor and disable the external one
+		xrandr --output LVDS1 --mode auto --output HDMI1 --off
+	fi
+else
+	echo "No HDMI."
+	# External monitor is not connected
+	#xfce4-panel --restart;
+	xrandr --output LVDS1 --primary --mode 1366x768 --output HDMI3 --off;
+fi
