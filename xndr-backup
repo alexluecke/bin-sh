@@ -1,39 +1,38 @@
 #! /bin/bash
 
-dots="dots"
-drive="Boatload"
-dir_from=$HOME
-dir_to=/media/$USER/$drive/Backups
+DRIVE="Boatload"
+DIR_FROM=$HOME
+DIR_TO=/media/$USER/$DRIVE/Backups
+SYNC_DIRS=()
+DOT_FILES=(".ssh" ".password-store" ".vim" ".task" ".taskrc" ".config" ".fonts")
 
-sync_dirs=()
-for dir in "$@"
+for DIR in "$@"
 do
-	if [ -d "$dir_from/$dir/" ] && [ -d "$dir_to/$dir/" ]
+	if [ -d "$DIR_FROM/$DIR/" ] && [ -d "$DIR_TO/$DIR/" ]
 	then
-		sync_dirs+=($dir)
-	elif [ "$dir" == "$dots" ]
+		SYNC_DIRS+=($DIR)
+	elif [ "$DIR" == "dots" ]
 	then
-		sync_dirs+=($dir)
+		SYNC_DIRS+=($DIR)
 	fi
 done
 
-dot_files=(".ssh" ".password-store" ".vim" ".task" ".taskrc" ".config" ".fonts")
-
-for dir in ${sync_dirs[@]}
+# Now that we know which dirs exists, sync:
+for DIR in ${SYNC_DIRS[@]}
 do
-	if [ $dir == "dots" ]; then
+	if [ "$DIR" == "dots" ]; then
 		printf "\nBackup dot files?\n"
 		select yn in "Yes" "No" "Dry"; do
 			case $yn in
 				Yes )
-					mkdir -p $dir_to/dots;
+					mkdir -p $DIR_TO/dots;
 
-					for dot in ${dot_files[@]}
+					for DOT in ${DOT_FILES[@]}
 					do
-						printf "\nBacking up $dir_from/$dot to $dit_to/dots/$dot\n"
-						mkdir -p  $dir_to/dots/$dot;
+						printf "\nBacking up $DIR_FROM/$DOT to $DIR_TO/dots/$DOT\n"
+						mkdir -p  $DIR_TO/dots/$DOT;
 						rsync -aruv --delete --progress \
-							$dir_from/${dot}/ $dir_to/dots/${dot}/;
+							$DIR_FROM/$DOT/ $DIR_TO/dots/$DOT/;
 					done
 
 					break
@@ -42,15 +41,14 @@ do
 				Dry )
 
 					# TODO: Refactor this.
-					echo "DRY RUN"
-					mkdir -p $dir_to/dots;
+					mkdir -p $DIR_TO/dots;
 
-					for dot in ${dot_files[@]}
+					for DOT in ${DOT_FILES[@]}
 					do
-						printf "\nBacking up $dir_from/$dot to $dit_to/dots/$dot\n"
-						mkdir -p  $dir_to/dots/$dot;
+						printf "\nBacking up $DIR_FROM/$DOT to $DIR_TO/dots/$DOT\n"
+						mkdir -p  $DIR_TO/dots/$DOT;
 						rsync -aruvn --delete --progress \
-							$dir_from/${dot}/ $dir_to/dots/${dot}/;
+							$DIR_FROM/$DOT/ $DIR_TO/dots/$DOT/;
 					done
 
 					continue
@@ -58,19 +56,19 @@ do
 				* ) break;;
 			esac
 		done
-	elif [ -n "$dir" ]; then
-		printf "\nSync $dir_from/$dir to $dir_to/$dir?\n"
+	elif [ -n "$DIR" ]; then
+		printf "\nSync $DIR_FROM/$DIR to $DIR_TO/$DIR?\n"
 		select yn in "Yes" "No" "Dry"; do
 			case $yn in
 				Yes )
 					rsync -aruv --delete --progress \
-						$dir_from/$dir/ $dir_to/$dir/;
+						$DIR_FROM/$DIR/ $DIR_TO/$DIR/;
 					break
 					;;
 				No ) echo "SKIPPING"; break;;
 				Dry )
 					rsync -aruvn --delete --progress \
-						$dir_from/$dir/ $dir_to/$dir/;
+						$DIR_FROM/$DIR/ $DIR_TO/$DIR/;
 					continue
 					;;
 				* ) break;;
@@ -78,24 +76,3 @@ do
 		done
 	fi
 done
-
-# TODO: Possible excludes to add.
-#--exclude=".Trash-*/" \
-#--exclude=".themes/" \
-#--exclude=".icons/" \
-#--exclude=".cache/" \
-#--exclude=".mozilla/" \
-#--exclude=".config/chromium/" \
-#--exclude=".config/google-chrome/" \
-#--exclude=".icedove/" \
-#--exclude=".thumbnails/" \
-#--exclude=".rvm/" \
-#--exclude=".cargo/" \
-#--exclude=".AndroidStudio/" \
-#--exclude=".android/" \
-#--exclude=".gimp-2.8/" \
-#--exclude=".gradle/" \
-#--exclude=".java/" \
-#--exclude=".vim/" \
-#--exclude="Steam" \
-#--exclude=".steam/" \
