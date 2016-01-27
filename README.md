@@ -1,3 +1,3 @@
-# Binaries
+# Various Scripts
 
-Various binaries for things I use and do.
+Various scripts for tasks I often perform.
