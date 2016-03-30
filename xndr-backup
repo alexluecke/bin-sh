@@ -4,7 +4,15 @@ DRIVE="Boatload"
 DIR_FROM=$HOME
 DIR_TO=/media/$USER/$DRIVE/Backups
 SYNC_DIRS=()
-DOT_FILES=(".ssh" ".password-store" ".vim" ".task" ".taskrc" ".config" ".fonts")
+DOT_FILES=(".ssh" ".password-store" ".vim" ".task" ".fonts" ".gnupg")
+
+
+if [ -d "$DIR_TO" ]; then
+	echo "Backing up..."
+else
+	echo "Backup drive not mounted"
+fi
+
 
 for DIR in "$@"
 do
@@ -47,7 +55,7 @@ do
 					do
 						printf "\nBacking up $DIR_FROM/$DOT to $DIR_TO/dots/$DOT\n"
 						mkdir -p  $DIR_TO/dots/$DOT;
-						rsync -aruvn --delete --progress \
+						rsync --exclude=google-chrome -aruvn --delete --progress \
 							$DIR_FROM/$DOT/ $DIR_TO/dots/$DOT/;
 					done
 
